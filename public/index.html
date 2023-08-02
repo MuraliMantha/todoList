@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+      integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+      integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://kit.fontawesome.com/5f59ca6ad3.js"
+      crossorigin="anonymous"
+    ></script>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/img/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Caveat:wght@400;500;600;700&family=Lobster&family=Monoton&family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&family=Playfair+Display+SC:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;1,100;1,300;1,400;1,500;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/img/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>React App</title>
+    <script type="text/javascript">
+      // hide HRM logs because they're distracting
+      // prettier-ignore
+      const log = console.log;
+      // prettier-ignore
+      console.log = (...args) =>
+        args[0]?.includes?.('[HMR]') ? null : log(...args);
+      let todoItemsContainer = document.getElementById('todoItemsContainer')
+      let addTodoButton = document.getElementById('addTodoButton')
+      let saveTodoButton = document.getElementById('saveTodoButton')
+      let paraGraphEl = document.getElementById('paraGraph')
+
+      function getTodoListFromLocalStorage() {
+        let stringifiedTodoList = localStorage.getItem('todoList')
+        let parsedTodoList = JSON.parse(stringifiedTodoList)
+        if (parsedTodoList === null) {
+          return []
+        } else {
+          return parsedTodoList
+        }
+      }
+
+      let todoList = getTodoListFromLocalStorage()
+      let todosCount = todoList.length
+
+      saveTodoButton.onclick = function () {
+        localStorage.setItem('todoList', JSON.stringify(todoList))
+      }
+
+      function onTodoStatusChange(checkboxId, labelId) {
+        let checkboxElement = document.getElementById(checkboxId)
+        let labelElement = document.getElementById(labelId)
+        labelElement.classList.toggle('checked')
+      }
+
+      function onDeleteTodo(todoId) {
+        let todoElement = document.getElementById(todoId)
+        todoItemsContainer.removeChild(todoElement)
+        let deleteElementIndex = todoList.findIndex(function (eachTodo) {
+          let eachTodoId = 'todo' + eachTodo.uniqueNo
+          if (eachTodoId === todoId) {
+            return true
+          } else {
+            return false
+          }
+        })
+        todoList.splice(deleteElementIndex, 1)
+      }
+
+      function createAndAppendTodo(todo) {
+        let todoId = 'todo' + todo.uniqueNo
+        let checkboxId = 'checkbox' + todo.uniqueNo
+        let labelId = 'label' + todo.uniqueNo
+
+        let todoElement = document.createElement('li')
+        todoElement.classList.add('todo-item-container', 'd-flex', 'flex-row')
+        todoElement.id = todoId
+        todoItemsContainer.appendChild(todoElement)
+
+        let inputElement = document.createElement('input')
+        inputElement.type = 'checkbox'
+        inputElement.id = checkboxId
+
+        inputElement.onclick = function () {
+          onTodoStatusChange(checkboxId, labelId)
+        }
+
+        inputElement.classList.add('checkbox-input')
+        todoElement.appendChild(inputElement)
+
+        let labelContainer = document.createElement('div')
+        labelContainer.classList.add('label-container', 'd-flex', 'flex-row')
+        todoElement.appendChild(labelContainer)
+
+        let labelElement = document.createElement('label')
+        labelElement.setAttribute('for', checkboxId)
+        labelElement.id = labelId
+        labelElement.classList.add('checkbox-label')
+        labelElement.innerHTML = `<span>${todo.text}</span><br/><br>${todo.description}<br><br/><small>${todo.date}</small>`
+        labelContainer.appendChild(labelElement)
+
+        let deleteIconContainer = document.createElement('div')
+        deleteIconContainer.classList.add('delete-icon-container')
+        labelContainer.appendChild(deleteIconContainer)
+
+        let deleteIcon = document.createElement('i')
+        deleteIcon.classList.add('far', 'fa-trash-alt', 'delete-icon')
+
+        deleteIcon.onclick = function () {
+          onDeleteTodo(todoId)
+        }
+
+        deleteIconContainer.appendChild(deleteIcon)
+      }
+
+      for (let todo of todoList) {
+        createAndAppendTodo(todo)
+      }
+
+      function onAddTodo() {
+        let userInputElement = document.getElementById('todoUserInput')
+        let descriptionElement = document.getElementById('taskDescription')
+        let userInputValue = userInputElement.value
+        let descriptionVal = descriptionElement.value
+
+        if (userInputValue === '') {
+          alert('Enter Valid Text')
+          return
+        }
+
+        todosCount = todosCount + 1
+
+        let newTodo = {
+          text: userInputValue,
+          description: descriptionVal,
+          uniqueNo: todosCount,
+          date: new Date().toLocaleString(),
+          len: todosCount,
+        }
+        todoList.push(newTodo)
+        createAndAppendTodo(newTodo)
+        userInputElement.value = ''
+        descriptionElement.value = ''
+      }
+
+      addTodoButton.onclick = function () {
+        onAddTodo()
+      }
+    </script>
+  </head>
+  <body>
+    <div class="todos-bg-container">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <h1 class="todos-heading">Todos</h1>
+            <h1 class="create-task-heading">
+              Create <span class="create-task-heading-subpart">Task</span>
+            </h1>
+            <input
+              type="text"
+              id="todoUserInput"
+              class="todo-user-input"
+              placeholder="What needs to be done?"
+            />
+            <textarea
+              class="todo-user-input mt-3"
+              id="taskDescription"
+              placeholder="Task Description"
+              required
+            ></textarea
+            ><br />
+            <button class="btn" id="addTodoButton">Add</button>
+            <h1 class="todo-items-heading">
+              My <span class="todo-items-heading-subpart">Tasks</span>
+            </h1>
+            <ul class="todo-items-container" id="todoItemsContainer"></ul>
+            <button class="button" id="saveTodoButton">Save</button>
+          </div>
+          <p class="para" id="paraGraph"></p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
